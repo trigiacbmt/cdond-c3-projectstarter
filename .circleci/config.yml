@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.10.1
+  node: circleci/node:4.1
 
 commands:
   destroy-environment:
@@ -38,8 +39,8 @@ commands:
             
 jobs:
   build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    executor:
+      name: node/default
     steps:
       - checkout
       - run:
@@ -197,4 +198,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - test-notify
+      - build-frontend
