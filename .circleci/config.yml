@@ -177,6 +177,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: 
-            - slack
+      - build-frontend
