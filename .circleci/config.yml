@@ -185,9 +185,7 @@ workflows:
       - build-frontend:
           context: 
             - slack
-      - build-backend:
-          context: 
-            - slack
+      - build-backend
       - test-frontend:
           context: 
             - slack
