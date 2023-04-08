@@ -46,6 +46,8 @@ jobs:
       - node/install:
           install-yarn: true
           node-version: '13.8.0'
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Build front-end
           command: |
@@ -53,18 +55,23 @@ jobs:
             cd frontend
             npm install
             npm run build
-            return 1
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
       - slack/notify:
           mentions: "@EngineeringTeam"
           event: always
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/base:stable
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - node/install:
+          install-yarn: true
+          node-version: '13.8.0'    
       - run:
           name: Back-end build
           command: |
@@ -76,15 +83,17 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
       - slack/notify:
-          channel: "C02V8NF1398"
+          mentions: "@EngineeringTeam"
           event: always
-  test-frontend:
     docker: 
-      - image: circleci/node:13.8.0
+      - image: cimg/base:stable
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
+      - node/install:
+          install-yarn: true
+          node-version: '13.8.0'     
       - run:
           name: Run front-end test
           command: |
@@ -92,9 +101,8 @@ jobs:
             npm install
             npm run test
       - slack/notify:
-          event: fail
-          mentions: '@EngineeringTeam'
-          template: basic_fail_1
+          mentions: "@EngineeringTeam"
+          event: always
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -102,6 +110,9 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - node/install:
+          install-yarn: true
+          node-version: '13.8.0'  
       - run:
           name: Run backend test
           command: |
@@ -109,12 +120,8 @@ jobs:
             npm install
             npm run test
       - slack/notify:
-          event: fail
-          mentions: '@EngineeringTeam'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1   
+          mentions: "@EngineeringTeam"
+          event: always
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -122,6 +129,9 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
+      - node/install:
+          install-yarn: true
+          node-version: '13.8.0'  
       - run:
           name: Scan front-end
           command: |
@@ -132,12 +142,8 @@ jobs:
             # npm audit --audit-level=critical
              npm audit fix --force
       - slack/notify:
-          event: fail
-          mentions: '@EngineeringTeam'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1   
+          mentions: "@EngineeringTeam"
+          event: always
   
   scan-backend:
     docker:
@@ -146,6 +152,9 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - node/install:
+          install-yarn: true
+          node-version: '13.8.0' 
       - run:
           name: Scan backend-end
           command: |
@@ -156,12 +165,8 @@ jobs:
             # npm audit --audit-level=critical
              npm audit fix --force
       - slack/notify:
-          event: fail
-          mentions: '@EngineeringTeam'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1   
+          mentions: "@EngineeringTeam"
+          event: always
 
 
 workflows:
