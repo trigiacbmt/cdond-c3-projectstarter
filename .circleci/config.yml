@@ -39,8 +39,8 @@ commands:
             
 jobs:
   build-frontend:
-    executor:
-      name: node/default
+    docker:
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
