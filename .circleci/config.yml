@@ -76,6 +76,7 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
       - slack/notify:
+          channel: "D052CJBSZPV"
           custom: |
             {
               "blocks": [
