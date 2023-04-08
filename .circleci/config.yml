@@ -53,9 +53,9 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-build
       - slack/notify:
-          channel: "C02V8NF1398"
+          channel: C02V8NF1398
           custom: |
-            "{\"blocks\":[{\"type\":\"section\",\"fields\":[{\"type\":\"plain_text\",\"text\":\"*This is a text notification*\",\"emoji\":true}]}],\"channel\":\"C02V8NF1398\"}"
+            {"blocks":[{"type":"section","fields":[{"type":"plain_text","text":"*This is a text notification*","emoji":true}]}],"channel":"C02V8NF1398"}
           event: always
 
   build-backend:
@@ -76,8 +76,9 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
       - slack/notify:
+          channel: C02V8NF1398
           custom: |
-            "{\"blocks\":[{\"type\":\"section\",\"fields\":[{\"type\":\"plain_text\",\"text\":\"*This is a text notification*\",\"emoji\":true}]}],\"channel\":\"C02V8NF1398\"}"
+            {"blocks":[{"type":"section","fields":[{"type":"plain_text","text":"*This is a text notification*","emoji":true}]}],"channel":"C02V8NF1398"}
           event: always
   test-frontend:
     docker: 
