@@ -37,14 +37,10 @@ commands:
   notify_slack_error:
     steps:
       - slack/notify:
-          channel: C02V8NF1398
-          event: fail
+          custom: |
+            {"blocks":[{"type":"section","fields":[{"type":"plain_text","text":"*This is a text notification*","emoji":true}]}],"channel":"C02V8NF1398"}
+          event: always
 
-  notify_slack_pass:
-    steps:
-      - slack/notify:
-          channel: C02V8NF1398
-          event: pass
             
 jobs:
   build-frontend:
@@ -65,7 +61,6 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-build
       - notify_slack_error
-      - notify_slack_pass
 
   build-backend:
     docker:
@@ -85,7 +80,6 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
       - notify_slack_error
-      - notify_slack_pass 
   test-frontend:
     docker: 
       - image: circleci/node:13.8.0
