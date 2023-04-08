@@ -65,7 +65,6 @@ jobs:
                     }
                   ]
                 }
-          channel: "C02V8NF1398"
           event: always
 
   build-backend:
