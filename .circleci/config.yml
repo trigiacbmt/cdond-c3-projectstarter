@@ -66,6 +66,27 @@ jobs:
               ]
             }
           event: always
+  test-notify:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
 
   build-backend:
     docker:
@@ -176,4 +197,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+      - test-notify
