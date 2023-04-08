@@ -168,18 +168,3 @@ workflows:
       - build-frontend:
           context: 
             - slack
-      - slack/on-hold:
-          context: slack
-          filters:
-            tags:
-              only: /^v.*/
-          requires:
-            - build-frontend
-      - pause_workflow:
-          filters:
-            tags:
-              only: /^v.*/
-          requires:
-            - build-frontend
-            - slack/on-hold
-          type: approval
