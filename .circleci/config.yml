@@ -34,12 +34,6 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
-  notify_slack_error:
-    steps:
-      - slack/notify:
-          custom: |
-            {"blocks":[{"type":"section","fields":[{"type":"plain_text","text":"*This is a text notification*","emoji":true}]}],"channel":"C02V8NF1398"}
-          event: always
 
             
 jobs:
@@ -60,7 +54,10 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - notify_slack_error
+      - slack/notify:
+          custom: |
+            {"blocks":[{"type":"section","fields":[{"type":"plain_text","text":"*This is a text notification*","emoji":true}]}],"channel":"C02V8NF1398"}
+          event: always
 
   build-backend:
     docker:
@@ -79,7 +76,10 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notify_slack_error
+      - slack/notify:
+          custom: |
+            {"blocks":[{"type":"section","fields":[{"type":"plain_text","text":"*This is a text notification*","emoji":true}]}],"channel":"C02V8NF1398"}
+          event: always
   test-frontend:
     docker: 
       - image: circleci/node:13.8.0
