@@ -53,7 +53,7 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-build
       - slack/notify:
-          channel: "C02V8NF1398"
+          channel: "#project"
           event: always
 
   build-backend:
