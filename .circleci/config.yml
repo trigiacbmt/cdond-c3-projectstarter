@@ -178,23 +178,29 @@ workflows:
   default:
     jobs:
       - build-frontend:
-          context: slack
+          context: 
+            - slack
       - build-backend:
-          context: slack
+          context: 
+            - slack
       - test-frontend:
-          context: slack
+          context: 
+            - slack
           requires:
             - build-frontend
       - test-backend:
-          context: slack
+          context: 
+            - slack
           requires:
             - build-backend
       - scan-frontend:
-          context: slack
+          context: 
+            - slack
           requires:
             - build-frontend
       - scan-backend:
-          context: slack
+          context: 
+            - slack
           requires:
             - build-backend
       
