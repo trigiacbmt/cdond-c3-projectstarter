@@ -93,7 +93,6 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - node/install:
-          install-yarn: true
           node-version: '13.8.0'     
       - run:
           name: Run front-end test
@@ -112,7 +111,6 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - node/install:
-          install-yarn: true
           node-version: '13.8.0'  
       - run:
           name: Run backend test
@@ -131,7 +129,6 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - node/install:
-          install-yarn: true
           node-version: '13.8.0'  
       - run:
           name: Scan front-end
@@ -154,7 +151,6 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - node/install:
-          install-yarn: true
           node-version: '13.8.0' 
       - run:
           name: Scan backend-end
