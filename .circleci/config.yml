@@ -198,7 +198,6 @@ jobs:
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
-            ls
             touch .circleci/ansible/inventory.txt
             echo "[add]" > .circleci/ansible/inventory.txt
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
@@ -206,6 +205,8 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo "$BACKEND_PUBLIC_IP" >> .circleci/ansible/inventory.txt
+            cd .circleci
+            ls
       - persist_to_workspace:
           root: ~/
           paths:
