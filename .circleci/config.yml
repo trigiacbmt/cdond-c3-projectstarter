@@ -85,6 +85,7 @@ jobs:
       - slack/notify:
           mentions: "@EngineeringTeam"
           event: always
+  test-frontend:
     docker: 
       - image: cimg/base:stable
     steps:
