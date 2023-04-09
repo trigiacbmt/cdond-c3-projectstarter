@@ -185,7 +185,7 @@ jobs:
             --template-file backend.yml \
             --stack-name "udapeople-backend-${S3_STRING_RANDOM}" \
             --parameter-overrides ID="${S3_STRING_RANDOM}"  \
-            --tags project=udapeople
+            --tags project=udapeople-backend
       - run:
           name: Ensure frontend infrastructure exist
           command: |
@@ -194,14 +194,14 @@ jobs:
             --template-file frontend.yml \
             --stack-name "udapeople-frontend-${S3_STRING_RANDOM}" \
             --parameter-overrides ID="${S3_STRING_RANDOM}"  \
-            --tags project=udapeople
+            --tags project=udapeople-frontend
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             # echo "[all]" > ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project, Values=udapeople-backend-${S3_STRING_RANDOM}" \
+            --filters "Name=tag:project, Values=udapeople-backend" \
             --output text >> .circleci/ansible/inventory.txt
       - destroy-environment
 
