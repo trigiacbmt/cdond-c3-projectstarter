@@ -223,3 +223,7 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
+      - deploy-infrastructure:
+          filters:
+            branches:
+              only: [master]
