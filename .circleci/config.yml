@@ -15,7 +15,10 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            exit 1
+            aws s3 rb s3://udapeople-${S3_STRING-RANDOM} --force
+            aws cloudformation delete-stack --stack-name udapeople-backend-${S3_STRING-RANDOM}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${S3_STRING-RANDOM}
+            
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -164,6 +167,43 @@ jobs:
       - slack/notify:
           mentions: "@EngineeringTeam"
           event: always
+
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install tar and Gzip utilities
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Ensure backend infrastructure exist
+          command: |
+            cd .circleci/files
+            aws cloudformation deploy \
+            --template-file .circleci/files/backend.yml \
+            --stack-name "udapeople-backend-${S3_STRING-RANDOM}" \
+            --parameter-overrides ID="${S3_STRING-RANDOM}"  \
+            --tags project=udapeople
+      - run:
+          name: Ensure frontend infrastructure exist
+          command: |
+            cd .circleci/files
+            aws cloudformation deploy \
+            --template-file .circleci/files/frontend.yml \
+            --stack-name "udapeople-frontend-${S3_STRING-RANDOM}" \
+            --parameter-overrides ID="${S3_STRING-RANDOM}"  \
+            --tags project=udapeople
+      - run:
+          name: Add the EC2 instance IP to the Ansible inventory
+          command: |
+            # echo "[all]" > .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project, Values=udapeople-backend-${S3_STRING-RANDOM}" \
+            --output text >> .circleci/ansible/inventory.txt
+      - destroy-environment
 
 
 workflows:
