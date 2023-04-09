@@ -212,6 +212,28 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt   
       - destroy-environment
+  configure-infrastructure:
+    image:
+      docker: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+      		# You can get this ID in the section where you registered the SSH Key
+          	fingerprints: ["8b:d4:ea:d8:bc:e8:38:60:31:d7:bc:c3:10:d0:34:88"]
+      - attach_workspace:
+          at: ~/      
+      - run:
+          name: Install Ansible
+          command: |
+            # Install Ansible
+              cd ~/project/.circleci/ansible
+              apk add --update ansible    
+      - run:
+          name: Configure ec2
+          command: |
+            cd ~/project/.circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
 
 
 workflows:
@@ -235,3 +257,6 @@ workflows:
           filters:
             branches:
               only: [master]
+      - configure-infrastructure:
+          requires:
+            - deploy-infrastructure
