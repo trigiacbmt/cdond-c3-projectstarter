@@ -15,9 +15,9 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            aws s3 rb s3://udapeople-${S3_STRING-RANDOM} --force
-            aws cloudformation delete-stack --stack-name udapeople-backend-${S3_STRING-RANDOM}
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${S3_STRING-RANDOM}
+            aws s3 rb s3://udapeople-${S3_STRING_RANDOM} --force
+            aws cloudformation delete-stack --stack-name udapeople-backend-${S3_STRING_RANDOM}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${S3_STRING_RANDOM}
             
 
   revert-migrations:
@@ -183,8 +183,8 @@ jobs:
             cd .circleci/files
             aws cloudformation deploy \
             --template-file backend.yml \
-            --stack-name "udapeople-backend-${S3_STRING-RANDOM}" \
-            --parameter-overrides ID="${S3_STRING-RANDOM}"  \
+            --stack-name "udapeople-backend-${S3_STRING_RANDOM}" \
+            --parameter-overrides ID="${S3_STRING_RANDOM}"  \
             --tags project=udapeople
       - run:
           name: Ensure frontend infrastructure exist
@@ -192,8 +192,8 @@ jobs:
             cd .circleci/files
             aws cloudformation deploy \
             --template-file frontend.yml \
-            --stack-name "udapeople-frontend-${S3_STRING-RANDOM}" \
-            --parameter-overrides ID="${S3_STRING-RANDOM}"  \
+            --stack-name "udapeople-frontend-${S3_STRING_RANDOM}" \
+            --parameter-overrides ID="${S3_STRING_RANDOM}"  \
             --tags project=udapeople
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
@@ -201,7 +201,7 @@ jobs:
             # echo "[all]" > ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project, Values=udapeople-backend-${S3_STRING-RANDOM}" \
+            --filters "Name=tag:project, Values=udapeople-backend-${S3_STRING_RANDOM}" \
             --output text >> .circleci/ansible/inventory.txt
       - destroy-environment
 
