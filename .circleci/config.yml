@@ -182,7 +182,7 @@ jobs:
           command: |
             cd .circleci/files
             aws cloudformation deploy \
-            --template-file .circleci/files/backend.yml \
+            --template-file backend.yml \
             --stack-name "udapeople-backend-${S3_STRING-RANDOM}" \
             --parameter-overrides ID="${S3_STRING-RANDOM}"  \
             --tags project=udapeople
@@ -191,14 +191,14 @@ jobs:
           command: |
             cd .circleci/files
             aws cloudformation deploy \
-            --template-file .circleci/files/frontend.yml \
+            --template-file frontend.yml \
             --stack-name "udapeople-frontend-${S3_STRING-RANDOM}" \
             --parameter-overrides ID="${S3_STRING-RANDOM}"  \
             --tags project=udapeople
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
-            # echo "[all]" > .circleci/ansible/inventory.txt
+            # echo "[all]" > ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project, Values=udapeople-backend-${S3_STRING-RANDOM}" \
