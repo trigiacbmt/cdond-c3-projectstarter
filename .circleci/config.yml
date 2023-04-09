@@ -201,7 +201,7 @@ jobs:
             # echo "[all]" > ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project, Values=udapeople-backend" \
+            --filters "Name=tag:project, Values=backend-${S3_STRING_RANDOM}" \
             --output text >> .circleci/ansible/inventory.txt
       - destroy-environment
 
