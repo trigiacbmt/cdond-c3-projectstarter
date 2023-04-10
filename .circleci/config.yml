@@ -200,7 +200,7 @@ jobs:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             touch .circleci/ansible/inventory.txt
-            echo "[add]" > .circleci/ansible/inventory.txt
+            # echo "[add]" > .circleci/ansible/inventory.txt
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -233,8 +233,10 @@ jobs:
           name: Configure ec2
           command: |
             cd ~/project/.circleci/ansible
+            sudo cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
+  
 
 
 workflows:
