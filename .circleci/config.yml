@@ -233,7 +233,7 @@ jobs:
           name: Configure ec2
           command: |
             cd ~/project/.circleci/ansible
-            sudo cat inventory.txt
+            cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
   
