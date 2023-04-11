@@ -227,8 +227,12 @@ jobs:
           name: Install Ansible
           command: |
             # Install Ansible
-              cd ~/project/.circleci/ansible
-              apk add --update ansible    
+              apk add --update ansible
+              apk add --no-cache \
+                  python3 \
+                  py3-pip \
+              && pip3 install --upgrade pip \
+              && pip3 install awscli
       - run:
           name: Configure ec2
           command: |
