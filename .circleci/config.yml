@@ -240,6 +240,142 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
+  run-migration:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            cd ~/project/backend
+            npm install
+            npm run migrations > migration_output.txt
+            echo "Migration Result:------"
+            
+      - run:
+          name: check results
+          command: |
+            cd ~/project/backend
+            if grep -q "has been executed successfully" migration_output.txt
+            then
+              echo "Success"
+              curl https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM}  -d '1'
+            else
+              echo "Failure"
+              
+            fi
+      - destroy-environment
+  deploy-frontend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl
+            pip3 install awscli
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo $API_URL
+            
+            echo "API_URL=$API_URL" >> frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            cd dist
+            aws s3 sync . "s3://udapeople-${S3_STRING_RANDOM}" --delete
+      - revert-migrations
+      - destroy-environment
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["13:8a:17:46:5f:c9:9e:7f:ec:9f:24:6d:00:d1:9c:fc"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible nodejs npm rsync openssh
+            pip install awscli
+      - run:
+          name: Deploy backend
+          command: |
+            cd ~/project/.circleci/ansible
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy-environment
+      - revert-migrations
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    environment:
+      ID: arns3
+    steps:
+      - checkout
+      - run:
+          name: install packages
+          command: |
+            apk add curl
+            apk add --no-cache python3 py3-pip
+            pip3 install --upgrade pip
+            pip3 install awscli
+      - run:
+          name: smoke test for backend.
+          command: |
+            BACKEND_IP=`aws --region us-west-2 ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text`
+            curl "http://${BACKEND_IP}:3030/api/status"
+      - run:
+          name: smoke test for frontend
+          command: |
+            FRONTEND_URL="https://udapeople-${S3_STRING_RANDOM}.s3-us-west-2.amazonaws.com/index.html"
+            if curl -s ${FRONTEND_URL} | grep "Welcome"
+              then
+                return 0
+              else
+                return 1
+            fi
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --stack-name udapeople-cloudfront \
+              --template-file .circleci/files/cloudfront.yml \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides WorkflowID=${S3_STRING_RANDOM}
+      - destroy-environment
+
+  cleanup:
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Remove old stacks and files
+            command: |
+                aws cloudformation delete-stack --stack-name udapeople-cloudfront
+                aws cloudformation delete-stack --stack-name udapeople-backend-7c9c0e2
+                aws cloudformation delete-stack --stack-name udapeople-frontend-7c9c0e2
   
 
 
@@ -247,23 +383,29 @@ workflows:
   default:
     jobs:
       - build-frontend
-      - build-backend
+      - build-backend :
+          requires: [build-frontend]
       - test-frontend:
-          requires: 
-            - build-frontend
+          requires: [build-frontend]
       - test-backend:
-          requires:
-            - build-backend
+          requires: [build-backend]
       - scan-frontend:
-          requires:
-            - build-frontend
+          requires: [build-frontend]
       - scan-backend:
-          requires:
-            - build-backend
+          requires: [build-backend]
       - deploy-infrastructure:
-          filters:
-            branches:
-              only: [master]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
-          requires:
-            - deploy-infrastructure
+          requires: [deploy-infrastructure]
+      - run-migration:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migration]
+      - deploy-backend:
+          requires: [run-migration]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
