@@ -260,7 +260,8 @@ jobs:
             if grep -q "has been executed successfully" migration_output.txt
             then
               echo "Success"
-              curl https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM}  -d '1'
+              echo "insecure" >> ~/.curlrc
+              curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM}  -d '1'
             else
               echo "Failure"
               
