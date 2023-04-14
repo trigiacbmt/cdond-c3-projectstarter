@@ -31,13 +31,13 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS = $(curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM})
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              # Add revert code here. You can find this in the Getting Started section.
+              npm run migrations:revert
             fi
 
             
