@@ -220,7 +220,7 @@ jobs:
       - checkout
       - add_ssh_keys:
         # You can get this ID in the section where you registered the SSH Key
-          fingerprints: ["8b:d4:ea:d8:bc:e8:38:60:31:d7:bc:c3:10:d0:34:88"]
+          fingerprints: ["13:8a:17:46:5f:c9:9e:7f:ec:9f:24:6d:00:d1:9c:fc"]
       - attach_workspace:
           at: ~/      
       - run:
