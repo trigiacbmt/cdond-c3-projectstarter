@@ -276,7 +276,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl
+            apk add --update tar
+            apt install gzip 
+            apt install ansible 
+            apt install nodejs 
+            apt install npm 
+            apt install curl
             pip3 install awscli
       - run:
           name: Get backend url
@@ -313,12 +318,12 @@ jobs:
           name: Install dependencies
           command: |
             # apk add --update ansible nodejs npm rsync openssh
-            sudo apt update
-            sudo apt install ansible
-            sudo apt nodejs
-            sudo apt npm
-            sudo apt rsync
-            sudo apt curl
+            apt update
+            apt install ansible
+            apt install nodejs
+            apt install npm
+            apt install rsync
+            apt install curl
             pip install awscli
       - run:
           name: Add env vars to .env file
