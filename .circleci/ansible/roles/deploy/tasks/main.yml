@@ -1,67 +1,49 @@
 ---
-- name: "update apt packages"
-  become: true
-  become_method: sudo
-  apt:
-    update_cache: yes
-
-- name: "Remove dependencies that are no longer required"
-  become: true
-  apt:
-    autoremove: yes
-
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
-    
-- name: create directory for backend
-  become: true
+- name: create backend directory on EC2
+  become: yes
   file:
     path: /home/ubuntu/backend
     state: directory
     mode: 0755
 
-- name: "Copying backend zip file"
-  copy:
-    src: "~/artifact.tar.gz"
-    dest: /home/ubuntu/backend
-
-- name: "Unzip backend files to correct directory"
-  ansible.builtin.unarchive:
-    src: ~/artifact.tar.gz
-    dest: /home/ubuntu/backend
-
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-
-- name: "install pm2"
+- name: copy files to backend
   become: yes
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-    
-- name: Install dependencies
+  copy:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
+
+- name: unzip backend directory
+  become: yes
+  shell: |
+    cd /home/ubuntu/backend
+    tar -vxf artifact.tar.gz
+    rm -f artifact.tar.gz
+
+- name: start application
+  become: yes
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
+    cd dist
+    pm2 start main.js --update-env
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/*/entities/*.entity.js"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+
+- name: print environment variables
   become: true
   shell: |
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-    apt-get install -y nodejs
-    apt-get install gcc g++ make -y
-    npm install -g npm
-    npm install -g pm2
-    cd /home/ubuntu/app
-    tar xf /home/ubuntu/app/artifact.tar
-  
-- name: Start backend
-  shell:  |
-    /usr/bin/pm2 start /home/ubuntu/app/dist/main.js --name backend -f
+    printenv
+  register: printenv_out
 
-- name: print log
-  debug:
-    msg: "{{ execute_node_server.stdout_lines }}"
+- debug: var=printenv_out.stdout_lines
