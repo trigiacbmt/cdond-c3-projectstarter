@@ -20,7 +20,7 @@
   file:
     path: /home/ubuntu/backend
     state: directory
-    mode: '0777'
+    mode: "0755"
 
 - name: "Copying backend zip file"
   copy:
