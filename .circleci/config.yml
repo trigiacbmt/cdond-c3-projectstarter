@@ -379,7 +379,7 @@ jobs:
       - run:
           name: smoke test for frontend
           command: |
-            FRONTEND_URL="https://udapeople-${S3_STRING_RANDOM}.s3-${AWS_DEFAULT_REGION}.amazonaws.com/index.html"
+            FRONTEND_URL="https://udapeople-${S3_STRING_RANDOM}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/index.html"
             if curl -s ${FRONTEND_URL} | grep "Welcome"
               then
                 return 0
