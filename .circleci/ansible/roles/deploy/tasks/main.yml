@@ -1,52 +1,24 @@
 ---
-- name: "update apt packages"
-  become: true
-  become_method: sudo
-  apt:
-    update_cache: yes
-
-- name: "Remove dependencies that are no longer required"
-  become: true
-  apt:
-    autoremove: yes
-
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
-    
-- name: create directory for backend
-  become: true
+- name: create backend directory on EC2
+  become: yes
   file:
     path: /home/ubuntu/backend
     state: directory
-    mode: "0777"
+    mode: 0777
 
-- name: "Copying backend zip file"
-  copy:
-    src: "~/artifact.tar.gz"
-    dest: /home/ubuntu/backend
-
-- name: "Unzip backend files to correct directory"
-  ansible.builtin.unarchive:
-    src: ~/artifact.tar.gz
-    dest: /home/ubuntu/backend
-
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-
-- name: "install pm2"
+- name: copy files to backend
   become: yes
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-    
+  copy:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
+
+- name: unzip backend directory
+  become: yes
+  shell: |
+    cd /home/ubuntu/backend
+    tar -vxf artifact.tar.gz
+    rm -f artifact.tar.gz
+
 - name: start application
   become: yes
   shell: |
