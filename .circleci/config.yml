@@ -33,7 +33,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = $(curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM})
-            if(( $SUCCESS==1 )); 
+            if(( (${SUCCESS})==1 )); 
             then
               cd ~/project/backend
               npm install
@@ -348,7 +348,7 @@ jobs:
             tar -C backend -czvf ~/artifact.tar.gz .
             cd .circleci/ansible
             echo "COntents of the inventory.txt file is ----"
-            cat inventory,.txt
+            cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
