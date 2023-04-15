@@ -16,9 +16,9 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            aws s3 rb s3://udapeople-${S3_STRING_RANDOM} --force
-            aws cloudformation delete-stack --stack-name udapeople-backend-${S3_STRING_RANDOM}
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${S3_STRING_RANDOM}
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             
 
   revert-migrations:
@@ -32,7 +32,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = $(curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM})
+            SUCCESS = $(curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( (${SUCCESS})==1 )); 
             then
               cd ~/project/backend
@@ -185,8 +185,8 @@ jobs:
             cd .circleci/files
             aws cloudformation deploy \
             --template-file backend.yml \
-            --stack-name "udapeople-backend-${S3_STRING_RANDOM}" \
-            --parameter-overrides ID="${S3_STRING_RANDOM}"  \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
             --tags project=udapeople-backend
       - run:
           name: Ensure frontend infrastructure exist
@@ -194,8 +194,8 @@ jobs:
             cd .circleci/files
             aws cloudformation deploy \
             --template-file frontend.yml \
-            --stack-name "udapeople-frontend-${S3_STRING_RANDOM}" \
-            --parameter-overrides ID="${S3_STRING_RANDOM}"  \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
             --tags project=udapeople-frontend
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
@@ -203,7 +203,7 @@ jobs:
             touch .circleci/ansible/inventory.txt
             # echo "[add]" > .circleci/ansible/inventory.txt
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo "$BACKEND_PUBLIC_IP" >> .circleci/ansible/inventory.txt
@@ -262,7 +262,7 @@ jobs:
             then
               echo "Success"
               echo "insecure" >> ~/.curlrc
-              curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${S3_STRING_RANDOM}  -d '1'
+              curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             else
               echo "Failure"
               
@@ -287,7 +287,7 @@ jobs:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[0].Instances[0].PublicIpAddress' \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030" 
@@ -302,7 +302,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist "s3://udapeople-${S3_STRING_RANDOM}" --recursive
+            aws s3 cp dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - revert-migrations
       - destroy-environment
   deploy-backend:
@@ -372,14 +372,14 @@ jobs:
           name: smoke test for backend.
           command: |
             BACKEND_IP=`aws --region ${AWS_DEFAULT_REGION} ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text`
             curl "http://${BACKEND_IP}:3030/api/status"
       - run:
           name: smoke test for frontend
           command: |
-            FRONTEND_URL="http://udapeople-${S3_STRING_RANDOM}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"
+            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"
             echo ${FRONTEND_URL}
             if curl -s ${FRONTEND_URL} | grep "Welcome"
               then
@@ -396,10 +396,10 @@ jobs:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
-              --stack-name udapeople-cloudfront \
+              --stack-name InitialStack \
               --template-file .circleci/files/cloudfront.yml \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides WorkflowID=${S3_STRING_RANDOM}
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
 
   cleanup:
@@ -410,9 +410,31 @@ jobs:
         - run:
             name: Remove old stacks and files
             command: |
-                aws cloudformation delete-stack --stack-name udapeople-cloudfront
-                aws cloudformation delete-stack --stack-name udapeople-backend-7c9c0e2
-                aws cloudformation delete-stack --stack-name udapeople-frontend-7c9c0e2
+              # Fetch the Old workflow ID
+              export OldWorkflowID=$(aws cloudformation \
+                      list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                      --no-paginate --output text)
+              echo OldWorkflowID: "${OldWorkflowID}"
+              echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+              # Fetch the stack names
+              export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                      --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+              echo Stack names: "${STACKS[@]}"
+
+              # You can use any condition like:
+              # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+              if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
+              #if [[ "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+              then
+              # your code goes here
+              echo "============Delete Confirme============"
+              aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+              else
+              # your code goes here
+              echo "============Cannot Cleanup============"
+              fi
   
 
 
