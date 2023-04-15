@@ -39,12 +39,20 @@
     state: latest
     update_cache: yes
     
+- name: "install pm2"
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+    
 - name: "Executing node"
   shell: |
     cd ~/backend
     npm install
     pm2 stop default
-    npm run start
+    pm2 start npm -- start
   register: execute_node_server
 
 - name: print log
