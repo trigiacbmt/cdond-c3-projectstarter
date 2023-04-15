@@ -369,7 +369,7 @@ jobs:
       - run:
           name: smoke test for backend.
           command: |
-            BACKEND_IP=`aws --region us-west-2 ec2 describe-instances \
+            BACKEND_IP=`aws --region ${AWS_DEFAULT_REGION} ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${S3_STRING_RANDOM}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text`
@@ -377,7 +377,7 @@ jobs:
       - run:
           name: smoke test for frontend
           command: |
-            FRONTEND_URL="https://udapeople-${S3_STRING_RANDOM}.s3-us-west-2.amazonaws.com/index.html"
+            FRONTEND_URL="https://udapeople-${S3_STRING_RANDOM}.s3-${AWS_DEFAULT_REGION}.amazonaws.com/index.html"
             if curl -s ${FRONTEND_URL} | grep "Welcome"
               then
                 return 0
