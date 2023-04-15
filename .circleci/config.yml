@@ -327,7 +327,7 @@ jobs:
       - run:
           name: Add env vars to .env file
           command: |
-            echo ENVIRONMENT=$ENVIRONMENT > "./backend/.env"
+            echo ENVIRONMENT=production > "./backend/.env"
             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "./backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "./backend/.env"
             echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "./backend/.env"
