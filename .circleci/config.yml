@@ -54,7 +54,7 @@ jobs:
       - run:
           name: install python
           command: |
-            sudo apt-get install python3-dev
+            sudo apt-get update  python3-dev --fix-missing
       - node/install:
           install-yarn: true
           node-version: '13.8.0'
