@@ -279,7 +279,7 @@ jobs:
             then
               echo "Success"
               echo "insecure" >> ~/.curlrc
-              curl --insecure https://kvdb.io/SDAcYQYkcyiPaBKXnXQcgD/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/ZbnUazEMCRG2BRTWc8t36/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             else
               echo "Failure"
               
