@@ -9,22 +9,26 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      # Add parameter here
+        id:
+          type: string  
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
             # Your code here
-            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 rb s3://udapeople-<<parameters.id>> --force
+            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.id>>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.id>>
             
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here     
+      # Add parameter here 
+      id:
+        type: string    
     steps:
       - run:
           name: Revert migrations
@@ -34,9 +38,10 @@ commands:
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SECRET_KEY=$(curl -d 'email=phamducthong11101998@gmail.com' https://kvdb.io)
             echo ${SECRET_KEY}
-            curl https://kvdb.io/${SECRET_KEY}/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
-            SUCCESS=$(curl --insecure https://kvdb.io/${SECRET_KEY}/migration_${CIRCLE_WORKFLOW_ID:0:7})
-            if(( (${SUCCESS})==1 )); 
+            curl https://kvdb.io/${SECRET_KEY}/migration_<<parameters.id>> -d '1'
+            SUCCESS=$(curl --insecure https://kvdb.io/${SECRET_KEY}/migration_<<parameters.id>>)
+            echo ${SUCCESS}
+            if(( ${SUCCESS}==1 )); 
             then
               cd ~/project/backend
               npm install
@@ -317,7 +322,9 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - revert-migrations
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -365,8 +372,10 @@ jobs:
             echo "COntents of the inventory.txt file is ----"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - revert-migrations      
+      - revert-migrations
+          id: ${CIRCLE_WORKFLOW_ID:0:7}      
       - destroy-environment
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
@@ -400,8 +409,10 @@ jobs:
               else
                 return 1
             fi
-      - revert-migrations      
+      - revert-migrations
+          id: ${CIRCLE_WORKFLOW_ID:0:7}      
       - destroy-environment
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
   cloudfront-update:
     docker:
       - image: amazon/aws-cli
@@ -415,7 +426,10 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+          id: ${CIRCLE_WORKFLOW_ID:0:7}      
       - destroy-environment
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cleanup:
       docker:
