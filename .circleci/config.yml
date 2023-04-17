@@ -256,7 +256,7 @@ jobs:
             cd ~/project/.circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment
+      - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
   run-migration:
     docker:
