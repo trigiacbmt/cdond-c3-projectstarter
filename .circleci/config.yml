@@ -10,8 +10,8 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here
-        id:
-          type: string  
+      id:
+        type: string  
     steps:
       - run:
           name: Destroy environments
@@ -36,10 +36,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SECRET_KEY=$(curl -d 'email=phamducthong11101998@gmail.com' https://kvdb.io)
-            echo ${SECRET_KEY}
-            curl https://kvdb.io/${SECRET_KEY}/migration_<<parameters.id>> -d '1'
-            SUCCESS=$(curl --insecure https://kvdb.io/${SECRET_KEY}/migration_<<parameters.id>>)
+            SUCCESS=$(curl --insecure https://kvdb.io/ZbnUazEMCRG2BRTWc8t36/migration_<<parameters.id>>)
             echo ${SUCCESS}
             if(( ${SUCCESS}==1 )); 
             then
