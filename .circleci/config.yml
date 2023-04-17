@@ -268,6 +268,7 @@ jobs:
           command: |
             cd ~/project/backend
             npm install
+            npm run build
             npm run migrations > migration_output.txt
             echo "Migration Result:------"
             cat migration_output.txt
