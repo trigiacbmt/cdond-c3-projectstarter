@@ -270,12 +270,13 @@ jobs:
             npm install
             npm run migrations > migration_output.txt
             echo "Migration Result:------"
+            cat migration_output.txt
             
       - run:
           name: check results
           command: |
             cd ~/project/backend
-            if grep -q "has been executed successfully" migration_output.txt
+            if grep -q "has been executed successfully." migration_output.txt
             then
               echo "Success"
               echo "insecure" >> ~/.curlrc
