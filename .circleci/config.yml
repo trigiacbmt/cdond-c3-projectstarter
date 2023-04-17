@@ -51,6 +51,10 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
+      - run:
+          name: install python
+          command: |
+            sudo apt-get install python3-dev
       - node/install:
           install-yarn: true
           node-version: '13.8.0'
