@@ -237,7 +237,7 @@ jobs:
       - checkout
       - add_ssh_keys:
         # You can get this ID in the section where you registered the SSH Key
-          fingerprints: ["d4:c1:99:f3:e9:47:15:a2:74:34:67:97:32:8b:a1:d4"]
+          fingerprints: ["d8:e8:36:77:f7:76:e8:e3:1b:61:29:a1:af:16:46:c4"]
       - attach_workspace:
           at: ~/      
       - run:
@@ -333,7 +333,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["d4:c1:99:f3:e9:47:15:a2:74:34:67:97:32:8b:a1:d4"]
+          fingerprints: ["d8:e8:36:77:f7:76:e8:e3:1b:61:29:a1:af:16:46:c4"]
       - attach_workspace:
           at: ~/
       - run:
