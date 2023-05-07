@@ -11,11 +11,16 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "udapeople-${ID}"
-      AccessControl: PublicRead
+      BucketEncryption:
+      ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+          SSEAlgorithm: AES256
+      ObjectOwnership: BucketOwnerPreferred
+      BucketOwnerEnforced: true
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
-      BucketOwnerEnforced: true
+      
   
   WebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
