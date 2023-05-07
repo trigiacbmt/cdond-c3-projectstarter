@@ -12,10 +12,7 @@ Resources:
     Properties:
       BucketName: !Sub "udapeople-${ID}"
       PublicAccessBlockConfiguration:
-          BlockPublicAcls: false
-        OwnershipControls:
-          Rules:
-            - ObjectOwnership: ObjectWriter
+          BlockPublicPolicy: false
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
