@@ -15,6 +15,7 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
+      BucketOwnerEnforced: true
   
   WebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
