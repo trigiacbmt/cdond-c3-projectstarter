@@ -455,7 +455,7 @@ jobs:
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
       - persist_to_workspace:
           root: ~/
-          path: 
+          paths: 
             - project/OldWorkflowID.txt
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}      
