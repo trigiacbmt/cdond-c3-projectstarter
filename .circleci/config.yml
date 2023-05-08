@@ -425,7 +425,7 @@ jobs:
           root: ~/ 
       - run: 
           name: Save Old WorkflowId
-            command: |
+          command: |
               export OldWorkflowID=$(aws cloudformation \
                       list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                       --no-paginate --output text)
