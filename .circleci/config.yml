@@ -441,6 +441,7 @@ jobs:
                       list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                       --no-paginate --output text)
               cat > ~/OldWorkflowID.txt
+              cat ~/OldWorkflowID.txt
       - run:
           name: Update cloudfront distribution
           command: |
@@ -467,15 +468,15 @@ jobs:
         - attach_workspace:
             at: ~/
         - run:
-          name: Install dependencies
-          command: |
-            # apk add --update ansible nodejs npm rsync openssh
-            apk add ansible
-            apk add nodejs
-            apk add npm
-            apk add rsync
-            apk add curl
-            pip install awscli
+            name: Install dependencies
+            command: |
+              # apk add --update ansible nodejs npm rsync openssh
+              apk add ansible
+              apk add nodejs
+              apk add npm
+              apk add rsync
+              apk add curl
+              pip install awscli
         - run:
             name: Remove old stacks and files
             command: |
