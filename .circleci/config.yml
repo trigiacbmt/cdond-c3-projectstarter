@@ -437,7 +437,7 @@ jobs:
       - run: 
           name: Save Old WorkflowId
           command: |
-              cd ~/project
+              cd backend
               ls
               touch OldWorkflowID.txt
               export OldWorkflowID=$(aws cloudformation \
@@ -456,7 +456,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths: 
-            - project/OldWorkflowID.txt
+            - project/backend/OldWorkflowID.txt
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}      
       - destroy-environment:
@@ -485,7 +485,7 @@ jobs:
             name: Remove old stacks and files
             command: |
               # Fetch the Old workflow ID
-              cd ~/project
+              cd ~/project/backend
               cat OldWorkflowID.txt
               export OldWorkflowID=$(cat OldWorkflowID.txt)
               echo OldWorkflowID: "${OldWorkflowID}"
