@@ -41,6 +41,7 @@ commands:
             echo $SUCCESS
             if (( $SUCCESS == 1 ));
             then
+              ls
               cd ~/project/backend
               npm install
               # Add revert code here. You can find this in the Getting Started section.
