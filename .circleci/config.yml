@@ -421,8 +421,6 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - persist_to_workspace:
-          root: ~/ 
       - run: 
           name: Save Old WorkflowId
           command: |
@@ -438,6 +436,8 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+      - persist_to_workspace:
+          root: ~/ 
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}      
       - destroy-environment:
